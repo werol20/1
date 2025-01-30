@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Проверка наличия аргумента
+if [ $# -ne 1 ]; then
+    echo "Использование: $0 <имя_файла_лога>"
+    exit 1
+fi
+
+LOGFILE="$1"
+
+# Проверка существования файла
+if [ ! -f "$LOGFILE" ]; then
+    echo "Ошибка: файл '$LOGFILE' не найден!"
+    exit 1
+fi
+
+# Подсчет строк с "error"
+ERROR_COUNT=$(grep -i "error" "$LOGFILE" | wc -l)
+echo "Количество строк с 'error': $ERROR_COUNT"
+
+# Вывод последних 10 строк файла
+echo "Последние 10 строк файла:"
+tail -n 10 "$LOGFILE"
