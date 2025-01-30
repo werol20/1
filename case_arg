@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "Выберите опцию:"
+echo "1) Показать дату"
+echo "2) Показать текущий каталог"
+echo "3) Выйти"
+
+read choice
+case $choice in
+    1) date ;;
+    2) pwd ;;
+    3) echo "Выход..."; exit ;;
+    *) echo "Неверный выбор!" ;;
+esac
