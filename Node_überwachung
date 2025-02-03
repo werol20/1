@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Konfiguration
+NODE_APP="/pfad/zu/deiner/app.js"  # Pfad zur Node.js-App
+LOG_FILE="/var/log/node_monitor.log"  # Log-Datei für Überwachung
+CHECK_INTERVAL=5  # Sekunden zwischen den Prüfungen
+
+echo "Starte Node.js Überwachung..." | tee -a "$LOG_FILE"
+
+# Funktion zum Starten der Node.js-App
+start_app() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Starte Node.js-App..." | tee -a "$LOG_FILE"
+    nohup node "$NODE_APP" >> "$LOG_FILE" 2>&1 &
+    echo $! > /tmp/node_app.pid  # Speichert die Prozess-ID
+}
+
+# Hauptüberwachungsschleife
+while true; do
+    if [[ -f /tmp/node_app.pid ]]; then
+        PID=$(cat /tmp/node_app.pid)
+        if ps -p $PID > /dev/null; then
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Node.js läuft (PID: $PID)" | tee -a "$LOG_FILE"
+        else
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Node.js abgestürzt! Starte neu..." | tee -a "$LOG_FILE"
+            start_app
+        fi
+    else
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Keine PID gefunden. Starte App..." | tee -a "$LOG_FILE"
+        start_app
+    fi
+    sleep $CHECK_INTERVAL
+done
